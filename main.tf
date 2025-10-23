@@ -75,13 +75,11 @@ resource "google_cloudfunctions2_function" "hello_world" {
 variable "project_id" {
   description = "The ID of the GCP project"
   type        = string
-  default     = "app-xyz-dev"
 }
 
 variable "region" {
   description = "GCP region for deployment"
   type        = string
-  default     = "us-central1"
 }
 
 
