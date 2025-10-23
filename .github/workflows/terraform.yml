@@ -1,72 +1,72 @@
-name: Deploy Cloud Function with Terraform
+# name: Deploy Cloud Function with Terraform
 
-on:
-  push:
-    branches: [main]
-  workflow_dispatch:
+# on:
+#   push:
+#     branches: [main]
+#   workflow_dispatch:
 
-jobs:
-  plan:
-    name: Terraform Plan
-    runs-on: ubuntu-latest
+# jobs:
+#   plan:
+#     name: Terraform Plan
+#     runs-on: ubuntu-latest
 
-    env:
-      GOOGLE_CLOUD_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
-      GOOGLE_CLOUD_REGION: ${{ secrets.GCP_REGION }}
-      GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
-      TF_VERSION: 1.8.5
+#     env:
+#       GOOGLE_CLOUD_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+#       GOOGLE_CLOUD_REGION: ${{ secrets.GCP_REGION }}
+#       GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+#       TF_VERSION: 1.8.5
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ secrets.TF_VERSION }}
+#       - name: Setup Terraform
+#         uses: hashicorp/setup-terraform@v3
+#         with:
+#           terraform_version: ${{ secrets.TF_VERSION }}
 
-      - name: Run tfsec
-        uses: aquasecurity/tfsec-action@v1.0.3
-        with:
-          soft_fail: false
+#       - name: Run tfsec
+#         uses: aquasecurity/tfsec-action@v1.0.3
+#         with:
+#           soft_fail: false
 
-      - name: Create terraform.tfvars.json from secrets
-        run: |
-          cat > terraform.tfvars.json << EOF
-          ${{ secrets.TERRAFORM_VARS_JSON }}
-          EOF
+#       - name: Create terraform.tfvars.json from secrets
+#         run: |
+#           cat > terraform.tfvars.json << EOF
+#           ${{ secrets.TERRAFORM_VARS_JSON }}
+#           EOF
 
-      - name: Terraform Init
-        run: terraform init
+#       - name: Terraform Init
+#         run: terraform init
 
-      - name: Terraform Plan
-        run: terraform plan -var-file="terraform.tfvars.json"
+#       - name: Terraform Plan
+#         run: terraform plan -var-file="terraform.tfvars.json"
 
-  apply:
-    needs: plan
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    runs-on: ubuntu-latest
+#   apply:
+#     needs: plan
+#     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+#     runs-on: ubuntu-latest
 
-    env:
-      GOOGLE_CLOUD_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
-      GOOGLE_CLOUD_REGION: ${{ secrets.GCP_REGION }}
-      GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
-      TF_VERSION: 1.8.5
+#     env:
+#       GOOGLE_CLOUD_PROJECT: ${{ secrets.GCP_PROJECT_ID }}
+#       GOOGLE_CLOUD_REGION: ${{ secrets.GCP_REGION }}
+#       GOOGLE_CREDENTIALS: ${{ secrets.GCP_SA_KEY }}
+#       TF_VERSION: 1.8.5
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-        with:
-          terraform_version: ${{ secrets.TF_VERSION }}
+#       - name: Setup Terraform
+#         uses: hashicorp/setup-terraform@v3
+#         with:
+#           terraform_version: ${{ secrets.TF_VERSION }}
 
-      - name: Create terraform.tfvars.json from secrets
-        run: |
-          cat > terraform.tfvars.json << EOF
-          ${{ secrets.TERRAFORM_VARS_JSON }}
-          EOF
+#       - name: Create terraform.tfvars.json from secrets
+#         run: |
+#           cat > terraform.tfvars.json << EOF
+#           ${{ secrets.TERRAFORM_VARS_JSON }}
+#           EOF
 
-      - name: Terraform Apply
-        run: terraform apply -auto-approve -var-file="terraform.tfvars.json"
+#       - name: Terraform Apply
+#         run: terraform apply -auto-approve -var-file="terraform.tfvars.json"
