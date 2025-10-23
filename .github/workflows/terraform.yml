@@ -30,11 +30,17 @@ jobs:
         with:
           soft_fail: false
 
+      - name: Create terraform.tfvars.json from secrets
+        run: |
+          cat > terraform.tfvars.json << EOF
+          ${{ secrets.TERRAFORM_VARS_JSON }}
+          EOF
+
       - name: Terraform Init
         run: terraform init
 
       - name: Terraform Plan
-        run: terraform plan -var="project_id=${{ secrets.GCP_PROJECT_ID }}" -var="region=${{ secrets.GCP_REGION }}"
+        run: terraform plan -var-file="terraform.tfvars.json"
 
   apply:
     needs: plan
@@ -56,5 +62,11 @@ jobs:
         with:
           terraform_version: ${{ secrets.TF_VERSION }}
 
+      - name: Create terraform.tfvars.json from secrets
+        run: |
+          cat > terraform.tfvars.json << EOF
+          ${{ secrets.TERRAFORM_VARS_JSON }}
+          EOF
+
       - name: Terraform Apply
-        run: terraform apply -auto-approve -var="project_id=${{ secrets.GCP_PROJECT_ID }}" -var="region=${{ secrets.GCP_REGION }}"
+        run: terraform apply -auto-approve -var-file="terraform.tfvars.json"

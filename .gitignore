@@ -37,3 +37,6 @@ terraform.rc
 
 # Ignore backup files
 *.bak
+
+# Ignore generated GitHub secret files (contain sensitive info)
+github-secret-*.json
