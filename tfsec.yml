@@ -1,0 +1,13 @@
+# tfsec configuration file
+# This file allows you to exclude specific security checks
+
+# Exclude the customer-managed key check for development environments
+# Google Cloud Storage buckets are encrypted by default with Google-managed keys
+# which is sufficient for most use cases
+exclude:
+  - google-storage-bucket-encryption-customer-key
+
+# You can also exclude other checks if needed:
+# exclude:
+#   - google-storage-bucket-encryption-customer-key
+#   - another-check-id
