@@ -29,6 +29,8 @@ resource "google_storage_bucket" "function_bucket" { #tfsec:ignore:google-storag
   location = var.region
 
   uniform_bucket_level_access = true
+  force_destroy               = false      # Prevent accidental deletion when bucket has objects
+  public_access_prevention    = "enforced" # Block public access to bucket and objects
 
   versioning {
     enabled = true
@@ -69,6 +71,7 @@ resource "google_cloudfunctions2_function" "hello_world" {
   service_config {
     max_instance_count = 1
     available_memory   = "128M"
+    ingress_settings   = "ALLOW_INTERNAL_AND_GCLB" # Restrict to internal + Load Balancer only (no direct internet)
   }
 }
 

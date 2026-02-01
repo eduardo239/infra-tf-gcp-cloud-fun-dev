@@ -113,34 +113,23 @@ tfsec --help
 tfsec --version
 ```
 
-## Current Security Issues in Your Project
+## Current Security Posture
 
-Your project currently has 2 security issues detected by tfsec:
+The following security measures are in place:
 
-### Issue #1 (MEDIUM): Bucket has uniform bucket level access disabled
+### Terraform (main.tf)
 
-**Location:** `main.tf:27-30`  
-**Fix:** Add `uniform_bucket_level_access = true` to your storage bucket resource.
+- **Storage bucket:** `uniform_bucket_level_access = true`, `force_destroy = false`, `public_access_prevention = "enforced"` to prevent public exposure and accidental deletion.
+- **Cloud Function:** `ingress_settings = "ALLOW_INTERNAL_AND_GCLB"` so the function is not directly reachable from the public internet (only internal traffic and Load Balancer).
+- **Bucket encryption:** Google-managed encryption is used by default; customer-managed keys are optional (see `customer-managed-encryption-example.tf` and `tfsec.yml` exclusions for dev).
 
-### Issue #2 (LOW): Storage bucket encryption does not use customer-managed key
+### Application Code (function/)
 
-**Location:** `main.tf:27-30`  
-**Fix:** This is optional but recommended for production. Requires setting up Cloud KMS.
+- **main.py (HTTP):** User input `name` is sanitized (length limit, printable chars only, no newlines) to reduce XSS and header injection risk.
+- **main_trigger_pub.py (Pub/Sub):** Message payload is decoded safely with size limit and error handling; only message length is logged to avoid leaking sensitive content.
 
-### Quick Fix for Issue #1
+### Optional: Customer-Managed Encryption
 
-To fix the uniform bucket level access issue, update your `google_storage_bucket` resource in `main.tf`:
-
-```terraform
-resource "google_storage_bucket" "function_bucket" {
-  name     = "${var.project_id}-functions"
-  location = var.region
-
-  # Add this line to fix the security issue
-  uniform_bucket_level_access = true
-}
-```
-
-After making this change, run `tfsec .` again to verify the fix, then commit your changes.
+For production, you may enable customer-managed keys (CMEK) for the bucket. See `customer-managed-encryption-example.tf` and [tfsec documentation](https://github.com/aquasecurity/tfsec). The check is excluded in `tfsec.yml` for development.
 
 For more information, visit the [tfsec documentation](https://github.com/aquasecurity/tfsec).
